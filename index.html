@@ -2,299 +2,250 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEXUS WIRELESS STORAGE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NEXUS COMMANDER</title>
   <style>
-    /* STYLE SAMA SEPERTI SEBELUMNYA */
-    :root {
-      --bg-dark: #050508;
-      --panel: #101015;
-      --primary: #00f3ff;
-      --secondary: #ff0055;
-      --text: #e0e6ed;
-      --dim: #6c7a89;
-    }
-    * { box-sizing: border-box; }
-    body { background: var(--bg-dark); color: var(--text); font-family: monospace; margin: 0; }
+    /* --- CSS SAMA SEPERTI SEBELUMNYA, DITAMBAH LOGIN OVERLAY --- */
+    :root { --bg-dark: #050508; --panel: #101015; --primary: #00f3ff; --secondary: #ff0055; --text: #e0e6ed; --dim: #6c7a89; }
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-dark); color: var(--text); font-family: 'Consolas', monospace; margin: 0; padding-bottom: 100px; }
     
-    .container { max-width: 800px; margin: 50px auto; padding: 20px; }
-    
-    .header { text-align: center; margin-bottom: 30px; }
-    .brand { color: var(--primary); font-size: 2em; font-weight: bold; letter-spacing: 3px; }
-    .subtitle { color: var(--dim); margin-top: 10px; }
-    
-    .input-section { background: var(--panel); padding: 25px; border-radius: 10px; margin-bottom: 20px; }
-    .input-group { margin-bottom: 20px; }
-    label { display: block; color: var(--dim); margin-bottom: 8px; font-size: 0.9em; }
-    input[type="text"] { 
-      width: 100%; 
-      padding: 12px; 
-      background: rgba(0,0,0,0.3); 
-      border: 1px solid var(--dim); 
-      color: var(--text); 
-      border-radius: 5px;
-      font-family: monospace;
-    }
-    input[type="text"]:focus { border-color: var(--primary); outline: none; }
-    
-    .btn { 
-      background: transparent; 
-      border: 2px solid var(--primary); 
-      color: var(--primary); 
-      padding: 12px 25px; 
-      cursor: pointer; 
-      font-weight: bold;
-      border-radius: 5px;
-      transition: 0.3s;
-      font-family: monospace;
-    }
+    /* Login Overlay */
+    #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .login-box { border: 1px solid var(--primary); padding: 30px; border-radius: 10px; background: #111; text-align: center; max-width: 90%; width: 400px; }
+    .login-input { background: #222; border: 1px solid #444; color: #fff; padding: 10px; width: 100%; margin: 10px 0; font-family: inherit; font-size: 1.2rem; text-align: center; letter-spacing: 2px; }
+    .btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.2s; }
     .btn:hover { background: var(--primary); color: #000; }
-    .btn-wide { width: 100%; }
+
+    /* Layout Utama (Sama) */
+    .header { background: rgba(5,5,10,0.95); border-bottom: 1px solid rgba(0,243,255,0.2); padding: 15px; position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; }
+    .brand { color: var(--primary); font-weight: bold; letter-spacing: 2px; }
+    .crumb-bar { padding: 10px 15px; background: rgba(255,255,255,0.03); font-size: 0.8rem; display: flex; flex-wrap: wrap; }
+    .crumb-item { cursor: pointer; margin-right: 5px; } .crumb-item:hover { color: var(--primary); }
     
-    .info-box { 
-      background: rgba(0, 243, 255, 0.1); 
-      border-left: 3px solid var(--primary); 
-      padding: 15px; 
-      margin-top: 20px;
-      border-radius: 0 5px 5px 0;
-    }
-    
-    .device-info { 
-      background: var(--panel); 
-      padding: 15px; 
-      margin-top: 20px; 
-      border-radius: 5px;
-      display: none;
-    }
-    
-    #mainUI { display: none; }
-    
-    /* LOADING */
-    .loader {
-      border: 3px solid #333;
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    /* ERROR */
-    .error { 
-      background: rgba(255, 0, 85, 0.1); 
-      border-left: 3px solid var(--secondary); 
-      padding: 15px; 
-      margin: 20px 0;
-      border-radius: 0 5px 5px 0;
-    }
+    /* List */
+    #list { max-width: 1000px; margin: 0 auto; }
+    .row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #222; cursor: pointer; }
+    .row:hover { background: rgba(0,243,255,0.05); }
+    .row-name { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-left: 10px; }
+    .icon { width: 18px; height: 18px; fill: currentColor; }
+    .i-dir { color: var(--primary); } .i-file { color: var(--dim); }
+
+    /* Actions */
+    #actions { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 200%); background: var(--panel); border: 1px solid var(--secondary); border-radius: 50px; padding: 10px 20px; display: flex; gap: 10px; z-index: 95; transition: 0.3s; }
+    #actions.show { transform: translate(-50%, 0); }
+    .chk { display: none; margin-right: 10px; }
+    body.sel-mode .chk { display: block; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- SECTION 1: INPUT URL -->
-    <div id="inputSection">
-      <div class="header">
-        <div class="brand">NEXUS // WIRELESS STORAGE</div>
-        <div class="subtitle">Remote File Management System</div>
-      </div>
-      
-      <div class="input-section">
-        <div class="input-group">
-          <label>ENTER DEVICE ACCESS CODE</label>
-          <input type="text" id="deviceCode" placeholder="e.g.: AbC123xYz9" autocomplete="off">
-        </div>
-        
-        <div class="info-box">
-          <strong>How to get your code:</strong><br>
-          1. Connect to ESP32 via Serial Monitor<br>
-          2. Send command: <code>REGISTER</code><br>
-          3. Get your 10-digit code<br>
-          4. Access URL: https://denzel143.github.io/Nexus-Wireless-Storage/YOUR-CODE
-        </div>
-        
-        <button class="btn btn-wide" onclick="connectToDevice()">CONNECT TO DEVICE</button>
-        
-        <div class="device-info" id="deviceInfo">
-          <strong>Device Status:</strong> <span id="statusText">Checking...</span><br>
-          <strong>Device IP:</strong> <span id="deviceIP">-</span><br>
-          <strong>Connection:</strong> <span id="connectionStatus">-</span>
-        </div>
-      </div>
+
+  <div id="loginOverlay">
+    <div class="login-box">
+      <h2 style="color:var(--primary)">NEXUS ACCESS</h2>
+      <p style="color:#888; font-size:0.8rem">ENTER 10-DIGIT DEVICE CODE</p>
+      <input type="text" id="codeInput" class="login-input" placeholder="XXXXXXXXXX" maxlength="10">
+      <button class="btn" onclick="manualLogin()">CONNECT</button>
+      <p id="loginStatus" style="color:var(--secondary); margin-top:10px; font-size:0.8rem"></p>
     </div>
-    
-    <!-- SECTION 2: MAIN UI (HIDDEN AWAL) -->
-    <div id="mainUI">
-      <!-- UI UTAMA SAMA PERSIS DENGAN KODE SEBELUMNYA -->
-      <!-- COPY SEMUA HTML DARI KODE SEBELUMNYA DI SINI -->
-      <!-- (Header, Breadcrumb, File List, Modals, dll) -->
-    </div>
-    
-    <!-- LOADING -->
-    <div id="loading" style="text-align: center; display: none;">
-      <div class="loader"></div>
-      <div>Connecting to device...</div>
-    </div>
-    
-    <!-- ERROR -->
-    <div id="errorBox" class="error" style="display: none;"></div>
   </div>
 
-  <script>
-    // STATE
-    let deviceIP = "";
-    let deviceCode = "";
-    let isConnected = false;
+  <div class="header">
+    <div class="brand">NEXUS // CLOUD</div>
+    <div>
+      <button class="btn" style="padding:5px 10px; font-size:0.7rem" onclick="toggleSel()" id="btnSel">SELECT</button>
+      <button class="btn" style="padding:5px 10px; font-size:0.7rem" onclick="sendCommand('SCAN', '/')">REFRESH</button>
+    </div>
+  </div>
+  
+  <div class="crumb-bar" id="crumbs">/</div>
+  <div id="list"></div>
+
+  <div id="actions">
+    <button class="btn" style="border-color:var(--secondary); color:var(--secondary)" onclick="doDelete()">DELETE</button>
+  </div>
+
+<script type="module">
+  // --- FIREBASE CONFIG ---
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBoMhyh2ahl7qVYN0SWLacywkBSXfvvz3I",
+    authDomain: "tracker-e5b14.firebaseapp.com",
+    databaseURL: "https://tracker-e5b14-default-rtdb.firebaseio.com",
+    projectId: "tracker-e5b14",
+    storageBucket: "tracker-e5b14.firebasestorage.app",
+    messagingSenderId: "379043538181",
+    appId: "1:379043538181:web:d8397cd53a8c06d13b436c",
+    measurementId: "G-V8MXW8WRQR"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // --- GLOBAL STATE ---
+  let deviceCode = "";
+  let isSelMode = false;
+  
+  // Expose function to window for HTML onclick
+  window.manualLogin = manualLogin;
+  window.toggleSel = toggleSel;
+  window.doDelete = doDelete;
+  window.sendCommand = sendCommand;
+  window.nav = nav;
+
+  // --- INIT ---
+  window.onload = () => {
+    // Cek URL: .../Nexus-Wireless-Storage/KODE123456
+    // Kita asumsikan format: host/Nexus-Wireless-Storage/?code=XYZ atau ambil last path segment
+    // Untuk GitHub Pages, URL mungkin: .../Nexus-Wireless-Storage/kode
     
-    // Ambil kode dari URL jika ada
-    function getCodeFromURL() {
-      const path = window.location.pathname;
-      const parts = path.split('/');
-      const code = parts[parts.length - 1];
-      
-      // Validasi kode: 10 karakter alfanumerik
-      if (code && code.length === 10 && /^[a-zA-Z0-9]+$/.test(code)) {
-        return code;
-      }
-      return null;
+    const pathSegments = window.location.pathname.split('/');
+    // Ambil segmen terakhir yang bukan kosong
+    let possibleCode = pathSegments.pop() || pathSegments.pop();
+    
+    // Validasi sederhana (Panjang 10 char)
+    if (possibleCode && possibleCode.length === 10) {
+      document.getElementById('codeInput').value = possibleCode;
+      connectToDevice(possibleCode);
+    } else {
+      // Jika kosong, biarkan user input manual
     }
+  };
+
+  function manualLogin() {
+    const code = document.getElementById('codeInput').value.trim();
+    if (code.length !== 10) {
+      document.getElementById('loginStatus').innerText = "Invalid Code Length";
+      return;
+    }
+    // Update URL agar terlihat profesional
+    const newUrl = window.location.origin + window.location.pathname.replace(/\/$/, "") + "/" + code;
+    window.history.pushState({path:newUrl},'',newUrl);
     
-    // Coba koneksi ke device
-    async function connectToDevice() {
-      const codeInput = document.getElementById('deviceCode');
-      const codeFromURL = getCodeFromURL();
-      
-      deviceCode = codeFromURL || codeInput.value.trim();
-      
-      if (!deviceCode || deviceCode.length !== 10) {
-        showError("Invalid device code. Must be 10 alphanumeric characters.");
-        return;
+    connectToDevice(code);
+  }
+
+  function connectToDevice(code) {
+    document.getElementById('loginStatus').innerText = "Verifying...";
+    deviceCode = code;
+
+    // Cek apakah device ada di Firebase
+    const dbRef = ref(db);
+    get(child(dbRef, `devices/${deviceCode}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        initListener();
+        sendCommand("SCAN", "/"); // Minta data awal
+      } else {
+        document.getElementById('loginStatus').innerText = "Device Not Found";
       }
+    }).catch((error) => {
+      console.error(error);
+      document.getElementById('loginStatus').innerText = "Connection Error";
+    });
+  }
+
+  // --- CORE LOGIC ---
+  function initListener() {
+    const filesRef = ref(db, `devices/${deviceCode}/files`);
+    const statusRef = ref(db, `devices/${deviceCode}/status`);
+
+    // Dengar perubahan file list
+    onValue(filesRef, (snapshot) => {
+      const data = snapshot.val();
+      renderList(data);
+    });
+
+    // Dengar status (Optional: tampilkan loading)
+    onValue(statusRef, (snapshot) => {
+      const status = snapshot.val();
+      if(status === "Scanning...") {
+        document.querySelector('.brand').innerText = "NEXUS // SYNCING...";
+      } else {
+        document.querySelector('.brand').innerText = "NEXUS // READY";
+      }
+    });
+  }
+
+  function renderList(filesObj) {
+    const list = document.getElementById('list');
+    list.innerHTML = "";
+    if (!filesObj) return;
+
+    // Convert object to array (Firebase return object if keys are path strings)
+    const items = Object.values(filesObj);
+    
+    // Sort Folder first
+    items.sort((a,b) => (a.t === 'd' ? -1 : 1));
+
+    const iDir = `<svg class="icon i-dir" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
+    const iFile = `<svg class="icon i-file" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`;
+
+    items.forEach(i => {
+      const el = document.createElement('div');
+      el.className = 'row';
+      const ico = i.t === 'd' ? iDir : iFile;
       
-      showLoading(true);
-      hideError();
-      
-      try {
-        // 1. Cek di Firebase untuk mendapatkan IP device
-        const firebaseResponse = await fetch(
-          `https://tracker-e5b14-default-rtdb.firebaseio.com/devices/${deviceCode}.json`
-        );
-        
-        if (!firebaseResponse.ok) {
-          throw new Error("Device not found in Firebase");
-        }
-        
-        const deviceData = await firebaseResponse.json();
-        
-        if (!deviceData || !deviceData.registered) {
-          throw new Error("Device not registered");
-        }
-        
-        deviceIP = deviceData.ip;
-        
-        // Update UI info
-        document.getElementById('deviceIP').textContent = deviceIP;
-        document.getElementById('deviceInfo').style.display = 'block';
-        
-        // 2. Coba koneksi langsung ke device
-        const verifyResponse = await fetch(`http://${deviceIP}/verify`, {
-          method: 'GET',
-          mode: 'cors',
-          headers: { 'Accept': 'application/json' }
-        });
-        
-        if (verifyResponse.ok) {
-          const verifyData = await verifyResponse.json();
-          
-          if (verifyData.code === deviceCode) {
-            // Koneksi berhasil
-            isConnected = true;
-            document.getElementById('statusText').textContent = "CONNECTED";
-            document.getElementById('statusText').style.color = "#00ff00";
-            document.getElementById('connectionStatus').textContent = "✓ Online";
-            
-            // Sembunyikan input, tampilkan main UI
-            document.getElementById('inputSection').style.display = 'none';
-            document.getElementById('mainUI').style.display = 'block';
-            
-            // Inisialisasi UI utama
-            initMainUI(deviceIP);
-          } else {
-            throw new Error("Code verification failed");
-          }
+      el.innerHTML = `
+        <input type="checkbox" class="chk" value="${i.p}">
+        ${ico} <div class="row-name">${i.n}</div>
+        <div style="font-size:0.7rem; color:var(--dim)">${i.s}</div>
+      `;
+
+      el.onclick = (e) => {
+        if(e.target.type === 'checkbox') return;
+        if(isSelMode) {
+           const c = el.querySelector('.chk'); c.checked = !c.checked;
+           chkUpd();
         } else {
-          throw new Error("Cannot connect to device. Check if device is online.");
+           if(i.t === 'd') {
+             // Navigasi folder (Request scan baru ke path tersebut)
+             sendCommand("SCAN", i.p);
+             document.getElementById('crumbs').innerText = i.p;
+           } else {
+             alert("File download via Firebase not supported in this mode.");
+           }
         }
-        
-      } catch (error) {
-        showError("Connection failed: " + error.message);
-        console.error(error);
-      } finally {
-        showLoading(false);
-      }
-    }
-    
-    // Inisialisasi UI utama setelah koneksi berhasil
-    function initMainUI(ip) {
-      // Set base URL untuk semua API call
-      window.API_BASE = `http://${ip}`;
-      
-      // Load UI utama (sama dengan kode sebelumnya)
-      // Inisialisasi semua fungsi dan event listener
-      initNexusUI();
-    }
-    
-    // Fungsi initNexusUI() berisi semua kode JavaScript dari versi sebelumnya
-    // tetapi semua endpoint fetch diganti dari '/' menjadi window.API_BASE + '/'
-    function initNexusUI() {
-      // COPY SEMUA JAVASCRIPT DARI KODE SEBELUMNYA DI SINI
-      // dengan modifikasi:
-      // Ganti: fetch('/scan-stream') menjadi fetch(window.API_BASE + '/scan-stream')
-      // Ganti: fetch('/mkdir', ...) menjadi fetch(window.API_BASE + '/mkdir', ...)
-      // dst...
-      
-      // Contoh:
-      /*
-      async function init() {
-        const res = await fetch(window.API_BASE + '/scan-stream');
-        // ... rest of the code
-      }
-      
-      async function execMkdir() {
-        await fetch(window.API_BASE + '/mkdir', {method:'POST', body:fd});
-        // ... rest of the code
-      }
-      */
-      
-      // Implementasi lengkap sama persis dengan kode sebelumnya
-      // hanya menambahkan window.API_BASE di depan setiap endpoint
-    }
-    
-    // Helper functions
-    function showLoading(show) {
-      document.getElementById('loading').style.display = show ? 'block' : 'none';
-    }
-    
-    function showError(message) {
-      const errorBox = document.getElementById('errorBox');
-      errorBox.textContent = message;
-      errorBox.style.display = 'block';
-    }
-    
-    function hideError() {
-      document.getElementById('errorBox').style.display = 'none';
-    }
-    
-    // Auto-connect jika ada kode di URL
-    window.onload = function() {
-      const codeFromURL = getCodeFromURL();
-      if (codeFromURL) {
-        document.getElementById('deviceCode').value = codeFromURL;
-        // Auto-connect setelah 1 detik
-        setTimeout(() => connectToDevice(), 1000);
-      }
-    };
-  </script>
+      };
+      el.querySelector('.chk').onchange = chkUpd;
+      list.appendChild(el);
+    });
+  }
+
+  function sendCommand(action, path, arg2="") {
+    // Tulis perintah ke Firebase: devices/[CODE]/cmd = "ACTION|PATH|ARG2"
+    const cmdStr = `${action}|${path}|${arg2}`;
+    set(ref(db, `devices/${deviceCode}/cmd`), cmdStr);
+  }
+
+  function nav(path) {
+    sendCommand("SCAN", path);
+  }
+
+  // --- SELECTION TOOLS ---
+  function toggleSel() {
+    isSelMode = !isSelMode;
+    document.body.classList.toggle('sel-mode', isSelMode);
+    document.getElementById('btnSel').innerText = isSelMode ? "CANCEL" : "SELECT";
+    chkUpd();
+  }
+
+  function chkUpd() {
+    const n = document.querySelectorAll('.chk:checked').length;
+    document.getElementById('actions').className = n>0 ? 'show' : '';
+  }
+
+  function doDelete() {
+    if(!confirm("Delete selected items?")) return;
+    const chks = document.querySelectorAll('.chk:checked');
+    chks.forEach(c => {
+      sendCommand("DELETE", c.value);
+    });
+    toggleSel();
+  }
+
+</script>
 </body>
 </html>
