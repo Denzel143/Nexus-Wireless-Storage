@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat Code Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        .url-display {
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .chat-display {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 30px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .code-badge {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .emoji {
+            font-size: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Chat Code Generator</h1>
+            <p>Buat kode unik untuk percakapan dan bagikan dengan siapapun</p>
+        </div>
+        
+        <div class="content">
+            <!-- View 1: Buat Chat Baru -->
+            <div id="view-create" class="view active">
+                <h2 style="margin-bottom: 20px;">📝 Buat Chat Baru</h2>
+                <textarea id="chatContent" placeholder="Tulis isi percakapan atau pesan Anda di sini..."></textarea>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="createChat()">
+                        <span class="emoji">✨</span> Buat Kode Chat
+                    </button>
+                    <button class="btn-secondary" onclick="generateExample()">
+                        <span class="emoji">🎲</span> Contoh Otomatis
+                    </button>
+                </div>
+            </div>
+            
+            <!-- View 2: Hasil Kode Chat -->
+            <div id="view-result" class="view">
+                <div class="code-badge" id="codeDisplay">Kode: Loading...</div>
+                <h2 style="margin-bottom: 20px;">✅ Chat Berhasil Dibuat!</h2>
+                
+                <div class="info-box">
+                    <p><strong>URL Chat Anda:</strong></p>
+                    <div class="url-display" id="urlDisplay">Loading...</div>
+                    <p>Bagikan URL ini dengan orang lain untuk melihat isi chat Anda.</p>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-success" onclick="copyURL()">
+                        <span class="emoji">📋</span> Salin URL
+                    </button>
+                    <button class="btn-primary" onclick="openURL()">
+                        <span class="emoji">🔗</span> Buka Chat
+                    </button>
+                    <button class="btn-secondary" onclick="newChat()">
+                        <span class="emoji">🆕</span> Buat Baru Lagi
+                    </button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="viewCount">0</div>
+                        <div class="stat-label">Total Dilihat</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="charCount">0</div>
+                        <div class="stat-label">Jumlah Karakter</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- View 3: Lihat Chat -->
+            <div id="view-chat" class="view">
+                <div class="code-badge" id="viewCodeDisplay">Kode: Loading...</div>
+                <h2 style="margin-bottom: 20px;">📨 Isi Percakapan</h2>
+                
+                <div class="chat-display" id="chatDisplay">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Memuat percakapan...</p>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="shareChat()">
+                        <span class="emoji">🔗</span> Bagikan Chat Ini
+                    </button>
+                    <button class="btn-primary" onclick="newChat()">
+                        <span class="emoji">🆕</span> Buat Chat Baru
+                    </button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="viewsCount">0</div>
+                        <div class="stat-label">Dilihat</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="createdDate">-</div>
+                        <div class="stat-label">Dibuat Pada</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
+    <script>
+        // Konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoMhyh2ahl7qVYN0SWLacywkBSXfvvz3I",
+            authDomain: "tracker-e5b14.firebaseapp.com",
+            databaseURL: "https://tracker-e5b14-default-rtdb.firebaseio.com",
+            projectId: "tracker-e5b14",
+            storageBucket: "tracker-e5b14.firebasestorage.app",
+            messagingSenderId: "379043538181",
+            appId: "1:379043538181:web:1ad81c37e159e7293b436c",
+            measurementId: "G-6Y4WMJ5LNX"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Fungsi untuk beralih tampilan
+        function showView(viewId) {
+            // Sembunyikan semua view
+            document.getElementById('view-create').classList.remove('active');
+            document.getElementById('view-result').classList.remove('active');
+            document.getElementById('view-chat').classList.remove('active');
+            
+            // Tampilkan view yang dipilih
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        // Generate kode unik
+        function generateUniqueCode() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return code;
+        }
+
+        // Format tanggal
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Buat chat baru
+        function createChat() {
+            const content = document.getElementById('chatContent').value.trim();
+            
+            if (!content) {
+                alert('Silakan tulis isi percakapan terlebih dahulu!');
+                document.getElementById('chatContent').focus();
+                return;
+            }
+
+            const code = generateUniqueCode();
+            const timestamp = Date.now();
+            
+            // Simpan ke Firebase
+            database.ref('chats/' + code).set({
+                content: content,
+                createdAt: timestamp,
+                views: 0,
+                lastViewed: null,
+                characterCount: content.length
+            }).then(() => {
+                // Update tampilan
+                document.getElementById('codeDisplay').textContent = `Kode: ${code}`;
+                const currentUrl = window.location.origin + window.location.pathname;
+                const shareUrl = `${currentUrl}?code=${code}`;
+                document.getElementById('urlDisplay').textContent = shareUrl;
+                document.getElementById('viewCount').textContent = '0';
+                document.getElementById('charCount').textContent = content.length;
+                
+                // Tampilkan view hasil
+                showView('view-result');
+                
+                // Update URL tanpa reload
+                window.history.pushState({ code: code }, '', `?code=${code}`);
+                
+                console.log('Chat berhasil disimpan dengan kode:', code);
+            }).catch((error) => {
+                console.error('Error menyimpan chat:', error);
+                alert('Terjadi kesalahan saat menyimpan chat. Silakan coba lagi.');
+            });
+        }
+
+        // Generate contoh otomatis
+        function generateExample() {
+            const examples = [
+                "Halo! Apa kabar? Saya sedang menguji sistem chat kode unik ini.",
+                "Meeting besok jam 10 pagi di ruang konferensi. Jangan lupa bawa laptop!",
+                "Ide untuk proyek baru: Membuat aplikasi berbagi catatan dengan kode unik yang bisa diakses siapa saja.",
+                "Daftar belanja: \n1. Susu\n2. Telur\n3. Roti\n4. Buah-buahan\n5. Sayuran segar",
+                "Catatan penting: \n- Deadline: 31 Desember 2024\n- Budget: Rp 10.000.000\n- Tim: 5 orang\n- Lokasi: Remote"
+            ];
+            
+            const randomExample = examples[Math.floor(Math.random() * examples.length)];
+            document.getElementById('chatContent').value = randomExample;
+        }
+
+        // Salin URL ke clipboard
+        function copyURL() {
+            const url = document.getElementById('urlDisplay').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('URL berhasil disalin ke clipboard!');
+            }).catch(err => {
+                console.error('Gagal menyalin URL:', err);
+                alert('Gagal menyalin URL. Silakan salin manual.');
+            });
+        }
+
+        // Buka URL chat
+        function openURL() {
+            const url = document.getElementById('urlDisplay').textContent;
+            window.open(url, '_blank');
+        }
+
+        // Chat baru
+        function newChat() {
+            document.getElementById('chatContent').value = '';
+            showView('view-create');
+            window.history.pushState({}, '', window.location.pathname);
+        }
+
+        // Bagikan chat
+        function shareChat() {
+            const currentUrl = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Chat Kode Unik',
+                    text: 'Lihat isi percakapan ini:',
+                    url: currentUrl
+                });
+            } else {
+                copyURL();
+            }
+        }
+
+        // Cek kode di URL saat halaman dimuat
+        function checkURLForCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            
+            if (code) {
+                loadChat(code);
+            } else {
+                showView('view-create');
+            }
+        }
+
+        // Muat chat berdasarkan kode
+        function loadChat(code) {
+            showView('view-chat');
+            
+            // Tampilkan loading
+            document.getElementById('chatDisplay').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Memuat percakapan...</p>
+                </div>
+            `;
+            
+            // Ambil data dari Firebase
+            const chatRef = database.ref('chats/' + code);
+            
+            chatRef.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                
+                if (data) {
+                    // Update tampilan
+                    document.getElementById('viewCodeDisplay').textContent = `Kode: ${code}`;
+                    document.getElementById('chatDisplay').textContent = data.content;
+                    document.getElementById('viewsCount').textContent = data.views || 0;
+                    document.getElementById('createdDate').textContent = formatDate(data.createdAt);
+                    
+                    // Update jumlah views
+                    const newViews = (data.views || 0) + 1;
+                    chatRef.update({
+                        views: newViews,
+                        lastViewed: Date.now()
+                    });
+                } else {
+                    document.getElementById('chatDisplay').innerHTML = `
+                        <div class="info-box">
+                            <h3>⚠️ Chat Tidak Ditemukan</h3>
+                            <p>Kode chat <strong>${code}</strong> tidak ditemukan atau telah dihapus.</p>
+                            <button class="btn-primary" onclick="newChat()" style="margin-top: 15px;">
+                                Buat Chat Baru
+                            </button>
+                        </div>
+                    `;
+                }
+            }).catch((error) => {
+                console.error('Error memuat chat:', error);
+                document.getElementById('chatDisplay').innerHTML = `
+                    <div class="info-box">
+                        <h3>❌ Error</h3>
+                        <p>Terjadi kesalahan saat memuat chat. Silakan coba lagi.</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Handle browser back/forward
+        window.onpopstate = function(event) {
+            checkURLForCode();
+        };
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            checkURLForCode();
+            
+            // Auto-focus textarea di view create
+            document.getElementById('chatContent').focus();
+        });
+    </script>
+</body>
+</html>
