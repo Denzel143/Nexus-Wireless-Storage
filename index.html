@@ -1,251 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NEXUS COMMANDER</title>
-  <style>
-    /* --- CSS SAMA SEPERTI SEBELUMNYA, DITAMBAH LOGIN OVERLAY --- */
-    :root { --bg-dark: #050508; --panel: #101015; --primary: #00f3ff; --secondary: #ff0055; --text: #e0e6ed; --dim: #6c7a89; }
-    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg-dark); color: var(--text); font-family: 'Consolas', monospace; margin: 0; padding-bottom: 100px; }
-    
-    /* Login Overlay */
-    #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .login-box { border: 1px solid var(--primary); padding: 30px; border-radius: 10px; background: #111; text-align: center; max-width: 90%; width: 400px; }
-    .login-input { background: #222; border: 1px solid #444; color: #fff; padding: 10px; width: 100%; margin: 10px 0; font-family: inherit; font-size: 1.2rem; text-align: center; letter-spacing: 2px; }
-    .btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.2s; }
-    .btn:hover { background: var(--primary); color: #000; }
-
-    /* Layout Utama (Sama) */
-    .header { background: rgba(5,5,10,0.95); border-bottom: 1px solid rgba(0,243,255,0.2); padding: 15px; position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; }
-    .brand { color: var(--primary); font-weight: bold; letter-spacing: 2px; }
-    .crumb-bar { padding: 10px 15px; background: rgba(255,255,255,0.03); font-size: 0.8rem; display: flex; flex-wrap: wrap; }
-    .crumb-item { cursor: pointer; margin-right: 5px; } .crumb-item:hover { color: var(--primary); }
-    
-    /* List */
-    #list { max-width: 1000px; margin: 0 auto; }
-    .row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #222; cursor: pointer; }
-    .row:hover { background: rgba(0,243,255,0.05); }
-    .row-name { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-left: 10px; }
-    .icon { width: 18px; height: 18px; fill: currentColor; }
-    .i-dir { color: var(--primary); } .i-file { color: var(--dim); }
-
-    /* Actions */
-    #actions { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 200%); background: var(--panel); border: 1px solid var(--secondary); border-radius: 50px; padding: 10px 20px; display: flex; gap: 10px; z-index: 95; transition: 0.3s; }
-    #actions.show { transform: translate(-50%, 0); }
-    .chk { display: none; margin-right: 10px; }
-    body.sel-mode .chk { display: block; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS CONNECT</title>
+    <style>
+        body {
+            background: #050508;
+            color: #00f3ff;
+            font-family: 'Segoe UI', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            border: 1px solid #00f3ff;
+            padding: 40px;
+            border-radius: 10px;
+            background: #111;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+        h1 { margin-bottom: 5px; letter-spacing: 2px; }
+        p { color: #888; margin-bottom: 20px; font-size: 0.9em; }
+        input {
+            background: #222;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            width: 200px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: block;
+            margin: 0 auto 20px auto;
+        }
+        input:focus { outline: none; border-color: #00f3ff; }
+        button {
+            background: #00f3ff;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover { background: #fff; box-shadow: 0 0 15px #00f3ff; }
+        #msg { margin-top: 20px; font-size: 0.9em; color: #ff0055; min-height: 20px; }
+    </style>
 </head>
 <body>
 
-  <div id="loginOverlay">
-    <div class="login-box">
-      <h2 style="color:var(--primary)">NEXUS ACCESS</h2>
-      <p style="color:#888; font-size:0.8rem">ENTER 10-DIGIT DEVICE CODE</p>
-      <input type="text" id="codeInput" class="login-input" placeholder="XXXXXXXXXX" maxlength="10">
-      <button class="btn" onclick="manualLogin()">CONNECT</button>
-      <p id="loginStatus" style="color:var(--secondary); margin-top:10px; font-size:0.8rem"></p>
+    <div class="container">
+        <h1>NEXUS PORTAL</h1>
+        <p>ENTER DEVICE CODE TO ACCESS STORAGE</p>
+        
+        <input type="text" id="code" maxlength="6" placeholder="XXXXXX">
+        <button onclick="connect()">CONNECT</button>
+        
+        <div id="msg"></div>
     </div>
-  </div>
 
-  <div class="header">
-    <div class="brand">NEXUS // CLOUD</div>
-    <div>
-      <button class="btn" style="padding:5px 10px; font-size:0.7rem" onclick="toggleSel()" id="btnSel">SELECT</button>
-      <button class="btn" style="padding:5px 10px; font-size:0.7rem" onclick="sendCommand('SCAN', '/')">REFRESH</button>
-    </div>
-  </div>
-  
-  <div class="crumb-bar" id="crumbs">/</div>
-  <div id="list"></div>
+    <script>
+        // --- KONFIGURASI ---
+        // URL Database Anda (tambahkan /devices/ di akhir nanti)
+        const DB_URL = "https://tracker-e5b14-default-rtdb.firebaseio.com/devices";
 
-  <div id="actions">
-    <button class="btn" style="border-color:var(--secondary); color:var(--secondary)" onclick="doDelete()">DELETE</button>
-  </div>
+        // Cek URL kalau ada kode otomatis (contoh: .../?code=ABC123)
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeParam = urlParams.get('code');
+            if(codeParam) {
+                document.getElementById('code').value = codeParam;
+                connect();
+            }
+        };
 
-<script type="module">
-  // --- FIREBASE CONFIG ---
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        async function connect() {
+            const code = document.getElementById('code').value.trim().toUpperCase();
+            const msg = document.getElementById('msg');
+            
+            if(code.length < 3) {
+                msg.innerText = "Invalid Code Length";
+                return;
+            }
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBoMhyh2ahl7qVYN0SWLacywkBSXfvvz3I",
-    authDomain: "tracker-e5b14.firebaseapp.com",
-    databaseURL: "https://tracker-e5b14-default-rtdb.firebaseio.com",
-    projectId: "tracker-e5b14",
-    storageBucket: "tracker-e5b14.firebasestorage.app",
-    messagingSenderId: "379043538181",
-    appId: "1:379043538181:web:d8397cd53a8c06d13b436c",
-    measurementId: "G-V8MXW8WRQR"
-  };
+            msg.innerText = "Searching Satellite...";
+            msg.style.color = "#00f3ff";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+            try {
+                // Ambil data IP dari Firebase
+                // Kita pakai REST API biasa agar tidak perlu config library yang berat
+                const response = await fetch(`${DB_URL}/${code}.json`);
+                const data = await response.json();
 
-  // --- GLOBAL STATE ---
-  let deviceCode = "";
-  let isSelMode = false;
-  
-  // Expose function to window for HTML onclick
-  window.manualLogin = manualLogin;
-  window.toggleSel = toggleSel;
-  window.doDelete = doDelete;
-  window.sendCommand = sendCommand;
-  window.nav = nav;
+                if(data && data.ip) {
+                    msg.innerText = "Target Found! Redirecting to: " + data.ip;
+                    
+                    // JEDA SEBENTAR (Opsional, biar kelihatan keren)
+                    setTimeout(() => {
+                        // --- INI KUNCI RAHASIANYA ---
+                        // Alihkan browser user ke IP Address lokal ESP32
+                        window.location.href = `http://${data.ip}`; 
+                    }, 1000);
+                    
+                } else {
+                    msg.style.color = "#ff0055";
+                    msg.innerText = "Device Not Found or Offline";
+                }
 
-  // --- INIT ---
-  window.onload = () => {
-    // Cek URL: .../Nexus-Wireless-Storage/KODE123456
-    // Kita asumsikan format: host/Nexus-Wireless-Storage/?code=XYZ atau ambil last path segment
-    // Untuk GitHub Pages, URL mungkin: .../Nexus-Wireless-Storage/kode
-    
-    const pathSegments = window.location.pathname.split('/');
-    // Ambil segmen terakhir yang bukan kosong
-    let possibleCode = pathSegments.pop() || pathSegments.pop();
-    
-    // Validasi sederhana (Panjang 10 char)
-    if (possibleCode && possibleCode.length === 10) {
-      document.getElementById('codeInput').value = possibleCode;
-      connectToDevice(possibleCode);
-    } else {
-      // Jika kosong, biarkan user input manual
-    }
-  };
-
-  function manualLogin() {
-    const code = document.getElementById('codeInput').value.trim();
-    if (code.length !== 10) {
-      document.getElementById('loginStatus').innerText = "Invalid Code Length";
-      return;
-    }
-    // Update URL agar terlihat profesional
-    const newUrl = window.location.origin + window.location.pathname.replace(/\/$/, "") + "/" + code;
-    window.history.pushState({path:newUrl},'',newUrl);
-    
-    connectToDevice(code);
-  }
-
-  function connectToDevice(code) {
-    document.getElementById('loginStatus').innerText = "Verifying...";
-    deviceCode = code;
-
-    // Cek apakah device ada di Firebase
-    const dbRef = ref(db);
-    get(child(dbRef, `devices/${deviceCode}`)).then((snapshot) => {
-      if (snapshot.exists()) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        initListener();
-        sendCommand("SCAN", "/"); // Minta data awal
-      } else {
-        document.getElementById('loginStatus').innerText = "Device Not Found";
-      }
-    }).catch((error) => {
-      console.error(error);
-      document.getElementById('loginStatus').innerText = "Connection Error";
-    });
-  }
-
-  // --- CORE LOGIC ---
-  function initListener() {
-    const filesRef = ref(db, `devices/${deviceCode}/files`);
-    const statusRef = ref(db, `devices/${deviceCode}/status`);
-
-    // Dengar perubahan file list
-    onValue(filesRef, (snapshot) => {
-      const data = snapshot.val();
-      renderList(data);
-    });
-
-    // Dengar status (Optional: tampilkan loading)
-    onValue(statusRef, (snapshot) => {
-      const status = snapshot.val();
-      if(status === "Scanning...") {
-        document.querySelector('.brand').innerText = "NEXUS // SYNCING...";
-      } else {
-        document.querySelector('.brand').innerText = "NEXUS // READY";
-      }
-    });
-  }
-
-  function renderList(filesObj) {
-    const list = document.getElementById('list');
-    list.innerHTML = "";
-    if (!filesObj) return;
-
-    // Convert object to array (Firebase return object if keys are path strings)
-    const items = Object.values(filesObj);
-    
-    // Sort Folder first
-    items.sort((a,b) => (a.t === 'd' ? -1 : 1));
-
-    const iDir = `<svg class="icon i-dir" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
-    const iFile = `<svg class="icon i-file" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`;
-
-    items.forEach(i => {
-      const el = document.createElement('div');
-      el.className = 'row';
-      const ico = i.t === 'd' ? iDir : iFile;
-      
-      el.innerHTML = `
-        <input type="checkbox" class="chk" value="${i.p}">
-        ${ico} <div class="row-name">${i.n}</div>
-        <div style="font-size:0.7rem; color:var(--dim)">${i.s}</div>
-      `;
-
-      el.onclick = (e) => {
-        if(e.target.type === 'checkbox') return;
-        if(isSelMode) {
-           const c = el.querySelector('.chk'); c.checked = !c.checked;
-           chkUpd();
-        } else {
-           if(i.t === 'd') {
-             // Navigasi folder (Request scan baru ke path tersebut)
-             sendCommand("SCAN", i.p);
-             document.getElementById('crumbs').innerText = i.p;
-           } else {
-             alert("File download via Firebase not supported in this mode.");
-           }
+            } catch (error) {
+                console.error(error);
+                msg.style.color = "#ff0055";
+                msg.innerText = "Connection Error";
+            }
         }
-      };
-      el.querySelector('.chk').onchange = chkUpd;
-      list.appendChild(el);
-    });
-  }
-
-  function sendCommand(action, path, arg2="") {
-    // Tulis perintah ke Firebase: devices/[CODE]/cmd = "ACTION|PATH|ARG2"
-    const cmdStr = `${action}|${path}|${arg2}`;
-    set(ref(db, `devices/${deviceCode}/cmd`), cmdStr);
-  }
-
-  function nav(path) {
-    sendCommand("SCAN", path);
-  }
-
-  // --- SELECTION TOOLS ---
-  function toggleSel() {
-    isSelMode = !isSelMode;
-    document.body.classList.toggle('sel-mode', isSelMode);
-    document.getElementById('btnSel').innerText = isSelMode ? "CANCEL" : "SELECT";
-    chkUpd();
-  }
-
-  function chkUpd() {
-    const n = document.querySelectorAll('.chk:checked').length;
-    document.getElementById('actions').className = n>0 ? 'show' : '';
-  }
-
-  function doDelete() {
-    if(!confirm("Delete selected items?")) return;
-    const chks = document.querySelectorAll('.chk:checked');
-    chks.forEach(c => {
-      sendCommand("DELETE", c.value);
-    });
-    toggleSel();
-  }
-
-</script>
+    </script>
 </body>
 </html>
