@@ -85,45 +85,44 @@
         };
 
         async function connect() {
-            const code = document.getElementById('code').value.trim().toUpperCase();
-            const msg = document.getElementById('msg');
-            
-            if(code.length !== 10) {
-                msg.innerText = "Invalid Code Length";
-                return;
-            }
-
-            msg.innerText = "Searching Satellite...";
-            msg.style.color = "#00f3ff";
-
-            try {
-                // Ambil data IP dari Firebase
-                // Kita pakai REST API biasa agar tidak perlu config library yang berat
-                const response = await fetch(`${DB_URL}/${code}.json`);
-                const data = await response.json();
-
-                if(data && data.ip) {
-                    msg.innerText = "Target Found! Redirecting to: " + data.ip;
-                    
-                    // JEDA SEBENTAR (Opsional, biar kelihatan keren)
-                    setTimeout(() => {
-                        // --- INI KUNCI RAHASIANYA ---
-                        // Alihkan browser user ke IP Address lokal ESP32
-                        window.location.href = `http://${data.ip}`; 
-                    }, 1000);
-                    
-                } else {
-                    msg.style.color = "#ff0055";
-                    msg.innerText = "Device Not Found or Offline";
-                }
-
-            } catch (error) {
-                console.error(error);
-                msg.style.color = "#ff0055";
-                msg.innerText = "Connection Error";
-            }
+        // Ambil kode tanpa upperCase (sesuai request sebelumnya)
+        const code = document.getElementById('code').value.trim();
+        const msg = document.getElementById('msg');
+        
+        if(code.length < 3) { // Atau !== 10 jika ingin ketat
+            msg.innerText = "Code Invalid";
+            return;
         }
+
+        msg.innerText = "Searching Satellite...";
+        msg.style.color = "#00f3ff";
+
+        try {
+            const response = await fetch(`${DB_URL}/${code}.json`);
+            const data = await response.json();
+
+            if(data && data.ip) {
+                // Data.ip sekarang isinya: "10.76.x.x/aBcD123456"
+                msg.innerText = "Target Found! Redirecting...";
+                
+                setTimeout(() => {
+                    // Kita tambahkan http:// di depannya
+                    // Hasil akhir: http://10.76.x.x/aBcD123456
+                    window.location.href = `http://${data.ip}`; 
+                }, 1000);
+            } else {
+                msg.style.color = "#ff0055";
+                msg.innerText = "Device Not Found / Code Wrong";
+            }
+
+        } catch (error) {
+            console.error(error);
+            msg.style.color = "#ff0055";
+            msg.innerText = "Connection Error";
+        }
+    }
     </script>
 </body>
 </html>
+
 
